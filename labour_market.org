@@ -1,0 +1,122 @@
+In this assignment, we consider the labour market.
+
+
+#+NAME: alpha-oregon-mango-chicken
+#+BEGIN_SRC ipython :session
+from scipy import optimize,arange
+from numpy import array
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+
+#+END_SRC
+
+* production function
+
+We use a standard CES production function:
+
+$$
+y = (\alpha K^\gamma + (1-\alpha) L^\gamma)^{1/\gamma}
+$$
+
+From this production function we derive labour demand. We also specify labour supply.
+
+#+NAME: failed-magnesium-oklahoma-mexico
+#+BEGIN_SRC ipython :session :results output drawer
+alpha = 0.25
+beta = 0.5
+K = 1
+
+def production_function(K,L,gamma):
+    return (alpha*K**gamma + (1-alpha)*L**gamma)**(1/gamma)
+
+def labour_demand(gamma,real_wage):
+    labour =  optimize.fminbound(lambda l: -(production_function(K,l,gamma)-real_wage*l),0,100,full_output=1)
+    return labour[0]
+
+def labour_supply(real_wage):
+    return real_wage**beta
+#+END_SRC
+
+Now we can plot labour demand and supply as a function of the real wage $w/p$.
+
+#+NAME: bakerloo-single-sweet-fourteen
+#+BEGIN_SRC ipython :session
+gamma = -10
+
+range_realwage = arange(0.001,1.0,0.0001)
+range_demand = [labour_demand(gamma,w) for w in range_realwage]
+range_supply = [labour_supply(w) for w in range_realwage]
+plt.style.use('seaborn')
+plt.clf()
+plt.plot(range_realwage,range_demand, label = '$L^D$')
+plt.plot(range_realwage,range_supply, label = '$L^S$')
+plt.xlabel('$w/p$')
+plt.ylabel('$L$')
+plt.legend()
+
+
+#+END_SRC
+
+#+RESULTS: bakerloo-single-sweet-fourteen
+:RESULTS:
+<matplotlib.legend.Legend at 0x10e219ac8>
+<matplotlib.figure.Figure at 0x104de3320>
+[[file:ipython-inline-images/ob-ipython-d70d4d0a172c098d23cdc0e7fbf6b690.png]]
+:END:
+
+
+We can solve for the equilibrium value.
+
+#+NAME: angel-two-green-lion
+#+BEGIN_SRC ipython :session
+initial_guess = 0.8
+optimize.fsolve(lambda w: labour_demand(gamma,w)-labour_supply(w), initial_guess)
+#+END_SRC
+
+#+RESULTS: angel-two-green-lion
+:RESULTS:
+array([ 0.86949312])
+:END:
+
+--------------
+
+*Exercise*
+
+Calculate equilibrium output $y$.
+
+-------------
+
+
+* Out of equilibrium
+
+Assume that the nominal wage $W$ is fixed. We would like to plot labour $L$ and output $y$ as a function of $p$.
+
+#+BEGIN_SRC ipython :session
+W = 0.01
+
+def labour_out_of_equilibrium(p,gamma):
+    l = min(labour_demand(gamma,W/p), labour_supply(W/p))
+    return l
+#+END_SRC
+
+-------------
+
+*Exercise*
+
+a. explain the code above.
+b. plot output $y$ as a function of $p$.
+
+------------
+
+* Taxation
+
+In this framework, we can introduce taxation. With a social security tax $t_{worker}$, labour supply gets the following form.
+
+#+BEGIN_SRC ipython :session
+def labour_supply_t(real_wage,t):
+    return ((1-t_worker)*w/p)
+
+
+
+#+END_SRC
